@@ -572,130 +572,103 @@ require("php-components/ad-carousel.php");
 
                 
 
-            <div class="row g-4" id="kingdom-realms-list">
-                <?php foreach ($servers as $server): ?>
-                    <div class="col-12 col-md-6 col-lg-4 server-card-wrapper server-entry"
-                        data-tags="<?= htmlspecialchars(json_encode($server->tags)) ?>"
-                        data-join-method="<?= htmlspecialchars($server->joinMethod) ?>"
-                        data-online="<?= $server->isOnline ? '1' : '0' ?>"
-                        data-players="<?= $server->currentPlayers ?>"
-                        data-game="<?= htmlspecialchars($server->game->name) ?>">
+              <div class="row g-4" id="kingdom-realms-list">
+<?php foreach ($servers as $server) { ?>
+    <div class="col-12 col-md-6 col-lg-4 server-card-wrapper server-entry"
+       data-tags="<?= htmlspecialchars(json_encode($server->tags)) ?>"
+       data-join-method="<?= htmlspecialchars($server->joinMethod) ?>"
+       data-online="<?= $server->isOnline ? '1' : '0' ?>"
+       data-players="<?= (int)$server->currentPlayers ?>"
+       data-game="<?= htmlspecialchars($server->game->name) ?>">
 
-                            
-                        <div class="server-card" style="--bg-image: url('<?= htmlspecialchars($server->icon?->getFullPath() ?? '/assets/media/banners/default.jpg') ?>');">
-                        
-                            <?php if ($server->isOfficial): ?>
+    <div class="server-card"
+         style="--bg-image: url('<?= htmlspecialchars($server->icon?->getFullPath() ?? '/assets/media/banners/default.jpg') ?>');">
 
-                                <div class="server-official-banner bg-ranked-1">
-                                    👑 Official Server of Kickback Kingdom
-                                </div>
-                            <?php endif; ?>
+      <?php if ($server->isOfficial): ?>
+        <div class="server-official-banner bg-ranked-1">👑 Official Server of Kickback Kingdom</div>
+      <?php endif; ?>
 
+      <div class="server-card-content text-center">
 
-                            <div class="server-card-content text-center">
-                                
-                            
+        <?php if (!empty($server->region)): ?>
+          <div class="d-flex justify-content-center align-items-center gap-2 mb-2">
+            <span class="badge rounded-pill bg-<?= $server->isOnline ? 'success' : 'danger' ?>">● <?= $server->isOnline ? 'Online' : 'Offline' ?></span>
+            <span class="server-region-label text-light small d-flex align-items-center gap-1">
+              <img src="https://flagcdn.com/16x12/<?= getRegionFlagCode($server->region) ?>.png"
+                   width="16" height="12" alt="<?= htmlspecialchars($server->region) ?>" style="object-fit: contain;">
+              <?= htmlspecialchars($server->region) ?>
+            </span>
+          </div>
+        <?php endif; ?>
 
-
-
-
-                                <?php if (!empty($server->region)): ?>
-                                    <div class="d-flex justify-content-center align-items-center gap-2 mb-2">
-                                        <span class="badge rounded-pill bg-<?= $server->isOnline ? 'success' : 'danger' ?>">
-                                            ● <?= $server->isOnline ? 'Online' : 'Offline' ?>
-                                        </span>
-
-                                        <span class="server-region-label text-light small d-flex align-items-center gap-1">
-                                            <img src="https://flagcdn.com/16x12/<?= getRegionFlagCode($server->region) ?>.png"
-                                                width="16" height="12" alt="<?= htmlspecialchars($server->region) ?>"
-                                                style="object-fit: contain;">
-                                            <?= htmlspecialchars($server->region) ?>
-                                        </span>
-                                    </div>
-                                <?php endif; ?>
-
-
-
-
-
-                                <div class="d-flex align-items-center justify-content-center gap-2 mb-2">
-                                    <img src="<?= htmlspecialchars($server->game->icon?->getFullPath() ?? '/assets/media/icons/default.png') ?>"
-                                        alt="<?= htmlspecialchars($server->game->name) ?> Icon"
-                                        style="width: 28px; height: 28px; object-fit: cover; border-radius: 6px; box-shadow: 0 0 4px rgba(0,0,0,0.5);">
-                                    <h5 class="mb-0 text-light text-shadow-sm fw-bold"><?= htmlspecialchars($server->name) ?></h5>
-                                </div>
-                                <div class="meta mb-2 small" style="color: #f8f9fa; text-shadow: 1px 1px 2px rgba(0,0,0,0.7);">
-  <strong><?= htmlspecialchars($server->game->name) ?></strong>
-  —
-  Recent players <strong><?= $server->currentPlayers ?></strong> / Max <?= $server->maxPlayers ?>
-</div>
-
-
-
-
-
-
-                                <?php if (!empty($server->tags)): ?>
-                                    <p class="mt-2 mb-3 d-flex flex-wrap justify-content-center gap-1">
-                                        <?php foreach ($server->tags as $tag): ?>
-                                            <span class="badge bg-primary"><?= htmlspecialchars($tag) ?></span>
-                                        <?php endforeach; ?>
-                                    </p>
-                                <?php endif; ?>
-
-
-
-                                <div class="server-card-footer mt-3">
-                                    <a href="<?= $server->gameUrl() ?>" class="btn btn-outline-light btn-sm">View Game</a>
-
-                                    <?php if (Session::isLoggedIn()): ?>
-                                        <?php if ($server->joinMethod !== 'manual'): ?>
-                                            <button
-                                                class="btn btn-sm bg-ranked-1"
-                                                data-bs-toggle="modal"
-                                                data-bs-target="#joinServerModal"
-                                                onclick="showJoinModal(
-                                                    '<?= htmlspecialchars($server->ip . ':' . $server->port) ?>',
-                                                    '<?= htmlspecialchars($server->name) ?>',
-                                                    '<?= htmlspecialchars($server->password) ?>',
-                                                    '<?= htmlspecialchars($server->game->name) ?>',
-                                                    '<?= htmlspecialchars($server->bannerMobile?->getFullPath() ?? '/assets/media/banners/default.jpg') ?>'
-                                                )">
-                                                Join Server
-                                            </button>
-
-
-
-                                            <?php else: ?>
-                                                <button class="btn btn-outline-light btn-sm"
-                                                        onclick="copyToClipboard('ip-<?= $server->crand ?>')">
-                                                    Copy IP
-                                                </button>
-                                                <input type="text" id="ip-<?= $server->crand ?>" value="<?= htmlspecialchars($server->ip . ':' . $server->port) ?>" readonly hidden>
-                                            <?php endif; ?>
-
-                                    <?php else: ?>
-                                        <a href="/login.php?redirect=servers.php" class="btn btn-sm bg-ranked-1">Join Server</a>
-                                    <?php endif; ?>
-                                </div>
-                            </div>
-                        </div>
-
-                    </div>
-                <?php endforeach; ?>
-            </div>
-
-
-
+        <div class="d-flex align-items-center justify-content-center gap-2 mb-2">
+          <img src="<?= htmlspecialchars($server->game->icon?->getFullPath() ?? '/assets/media/icons/default.png') ?>"
+               alt="<?= htmlspecialchars($server->game->name) ?> Icon"
+               style="width:28px;height:28px;object-fit:cover;border-radius:6px;box-shadow:0 0 4px rgba(0,0,0,0.5);">
+          <h5 class="mb-0 text-light text-shadow-sm fw-bold"><?= htmlspecialchars($server->name) ?></h5>
         </div>
 
-        <?php require("php-components/base-page-discord.php"); ?>
-    </div>
-    <?php require("php-components/base-page-footer.php"); ?>
+        <div class="meta mb-2 small" style="color:#f8f9fa;text-shadow:1px 1px 2px rgba(0,0,0,0.7);">
+          <strong><?= htmlspecialchars($server->game->name) ?></strong>
+          — Recent players <strong><?= (int)$server->currentPlayers ?></strong> / Max <?= (int)$server->maxPlayers ?>
+        </div>
+
+        <?php if (!empty($server->tags)): ?>
+          <p class="mt-2 mb-3 d-flex flex-wrap justify-content-center gap-1">
+            <?php foreach ($server->tags as $tag): ?>
+              <span class="badge bg-primary"><?= htmlspecialchars($tag) ?></span>
+            <?php endforeach; ?>
+          </p>
+        <?php endif; ?>
+
+        <div class="server-card-footer mt-3">
+          <a href="<?= htmlspecialchars($server->gameUrl(), ENT_QUOTES) ?>" class="btn btn-outline-light btn-sm">View Game</a>
+
+          <?php if (/*Session::isLoggedIn()*/ true): ?>
+            <?php if ($server->isOnline && $server->joinMethod !== 'manual'): ?>
+              <button class="btn btn-sm bg-ranked-1"
+                      data-bs-toggle="modal"
+                      data-bs-target="#joinServerModal"
+                      onclick="showJoinModal(
+                        '<?= htmlspecialchars($server->ip . ':' . $server->port, ENT_QUOTES) ?>',
+                        '<?= htmlspecialchars($server->name, ENT_QUOTES) ?>',
+                        '<?= htmlspecialchars($server->password ?? '', ENT_QUOTES) ?>',
+                        '<?= htmlspecialchars($server->game->name, ENT_QUOTES) ?>',
+                        '<?= htmlspecialchars($server->bannerMobile?->getFullPath() ?? '/assets/media/banners/default.jpg', ENT_QUOTES) ?>'
+                      )">
+                Join Server
+              </button>
+            <?php else: ?>
+              <button class="btn btn-outline-light btn-sm"
+                      onclick="copyToClipboard('ip-<?= $server->crand ?>')"
+                      data-for="ip-<?= $server->crand ?>">Copy IP</button>
+              <input type="hidden" id="ip-<?= $server->crand ?>" value="<?= htmlspecialchars($server->ip . ':' . $server->port, ENT_QUOTES) ?>">
+            <?php endif; ?>
+          <?php else: ?>
+            <a href="/login.php?redirect=servers.php" class="btn btn-sm bg-ranked-1">Login to Join</a>
+          <?php endif; ?>
+        </div>
+
+      </div><!-- /.server-card-content -->
+    </div><!-- /.server-card -->
+  </div><!-- /.server-card-wrapper -->
+<?php } ?>
+</div><!-- /#kingdom-realms-list -->
+</div> <!-- end left column (.col-12 .col-xl-9) -->
+
+<?php require("php-components/base-page-discord.php"); ?>
+</div> <!-- end .row -->
+
+<?php require("php-components/base-page-footer.php"); ?>
 </main>
 
 <?php require("php-components/base-page-javascript.php"); ?>
 <script>
+
+function copyToClipboard(copyText){
+    navigator.clipboard.writeText(copyText);
+} 
+
 function showJoinModal(ip, name, password = '', game = '', banner = '') {
   const nameEl = document.getElementById('modalServerName');
   const ipEl = document.getElementById('modalServerIp');
@@ -705,7 +678,8 @@ function showJoinModal(ip, name, password = '', game = '', banner = '') {
   const joinBtn = document.getElementById('confirmJoinBtn');
   const gameEl = document.getElementById('modalGameName');
 
-  document.querySelector('.server-card-bg').style.setProperty('--modal-bg-image', `url('${banner || '/assets/media/banners/default.jpg'}')`);
+  document.querySelector('.server-card-bg')
+    .style.setProperty('--modal-bg-image', `url('${banner || '/assets/media/banners/default.jpg'}')`);
 
   nameEl.textContent = name;
   ipEl.textContent = ip;
@@ -713,7 +687,7 @@ function showJoinModal(ip, name, password = '', game = '', banner = '') {
   gameEl.textContent = game;
   joinBtn.href = 'steam://connect/' + ip;
 
-  // Reset
+  // Reset toggle
   revealSection.classList.add('d-none');
   revealBtn.innerHTML = `<i class="fa-solid fa-eye me-1"></i> Show Connection Info`;
 
@@ -726,86 +700,83 @@ function showJoinModal(ip, name, password = '', game = '', banner = '') {
   };
 }
 
-
-
 document.addEventListener('DOMContentLoaded', () => {
-    const entries = Array.from(document.querySelectorAll('.server-card-wrapper'));
-    const tagFilters = document.getElementById('tagFilters');
-    const methodFilter = document.getElementById('joinMethodFilter');
-    const gameFilter = document.getElementById('gameFilter');
-    const sortSelect = document.getElementById('sortServers');
-    const serverList = document.getElementById('kingdom-realms-list');
+  const entries = Array.from(document.querySelectorAll('.server-card-wrapper'));
+  const tagFilters = document.getElementById('tagFilters');
+  const methodFilter = document.getElementById('joinMethodFilter');
+  const gameFilter = document.getElementById('gameFilter');
+  const sortSelect = document.getElementById('sortServers');
+  const serverList = document.getElementById('kingdom-realms-list');
 
-    // Collect unique tags from all entries
-    const uniqueTags = new Set();
-    entries.forEach(entry => {
-        try {
-            const tags = JSON.parse(entry.dataset.tags || '[]');
-            tags.forEach(tag => uniqueTags.add(tag));
-        } catch (e) {
-            console.warn("Invalid tag JSON:", entry.dataset.tags);
-        }
-    });
-
-    // Build tag filter buttons
-    uniqueTags.forEach(tag => {
-        const btn = document.createElement('button');
-        btn.className = 'btn btn-outline-secondary btn-sm';
-        btn.textContent = tag;
-        btn.dataset.tag = tag;
-        btn.addEventListener('click', () => {
-            btn.classList.toggle('active');
-            applyFilters();
-        });
-        tagFilters.appendChild(btn);
-    });
-
-    // Event listeners
-    methodFilter?.addEventListener('change', applyFilters);
-    gameFilter?.addEventListener('change', applyFilters);
-    sortSelect?.addEventListener('change', applyFilters);
-
-    function applyFilters() {
-        const activeTags = Array.from(tagFilters.querySelectorAll('.btn.active')).map(b => b.dataset.tag);
-        const selectedMethod = methodFilter?.value || '';
-        const selectedGame = gameFilter?.value || '';
-        const sortBy = sortSelect?.value || 'default';
-
-        // Sort entries
-        const sortedEntries = [...entries].sort((a, b) => {
-            const getAttr = (el, attr) => el.dataset[attr] || '';
-            const parseNum = (el, attr) => parseInt(el.dataset[attr] || '0');
-
-            switch (sortBy) {
-                case 'players': return parseNum(b, 'players') - parseNum(a, 'players');
-                case 'name':    return getAttr(a, 'game').localeCompare(getAttr(b, 'game'));
-                case 'online':  return (getAttr(b, 'online') === '1') - (getAttr(a, 'online') === '1');
-                default:        return 0;
-            }
-        });
-
-        // Filter and show/hide
-        sortedEntries.forEach(entry => {
-            const entryTags = JSON.parse(entry.dataset.tags || '[]');
-            const methodMatch = !selectedMethod || entry.dataset.joinMethod === selectedMethod;
-            const gameMatch = !selectedGame || entry.dataset.game === selectedGame;
-            const tagsMatch = activeTags.length === 0 || activeTags.every(tag => entryTags.includes(tag));
-
-            entry.classList.toggle('hidden', !(methodMatch && gameMatch && tagsMatch));
-        });
-
-        // Reorder DOM
-        sortedEntries.forEach(entry => {
-            if (entry.parentNode === serverList) {
-                serverList.appendChild(entry);
-            }
-        });
+  // Collect unique tags
+  const uniqueTags = new Set();
+  entries.forEach(entry => {
+    try {
+      const tags = JSON.parse(entry.dataset.tags || '[]');
+      tags.forEach(tag => uniqueTags.add(tag));
+    } catch (e) {
+      console.warn("Invalid tag JSON:", entry.dataset.tags);
     }
+  });
 
-    applyFilters(); // Initial call
+  // Build tag filter buttons
+  if (tagFilters) {
+    uniqueTags.forEach(tag => {
+      const btn = document.createElement('button');
+      btn.className = 'btn btn-outline-secondary btn-sm';
+      btn.textContent = tag;
+      btn.dataset.tag = tag;
+      btn.addEventListener('click', () => {
+        btn.classList.toggle('active');
+        applyFilters();
+      });
+      tagFilters.appendChild(btn);
+    });
+  }
+
+  methodFilter?.addEventListener('change', applyFilters);
+  gameFilter?.addEventListener('change', applyFilters);
+  sortSelect?.addEventListener('change', applyFilters);
+
+  function applyFilters() {
+    const activeTags = Array.from(tagFilters?.querySelectorAll('.btn.active') || []).map(b => b.dataset.tag);
+    const selectedMethod = methodFilter?.value || '';
+    const selectedGame = gameFilter?.value || '';
+    const sortBy = sortSelect?.value || 'default';
+
+    // Sort entries
+    const sortedEntries = [...entries].sort((a, b) => {
+      const getAttr = (el, attr) => el.dataset[attr] || '';
+      const parseNum = (el, attr) => parseInt(el.dataset[attr] || '0', 10);
+
+      switch (sortBy) {
+        case 'players': return parseNum(b, 'players') - parseNum(a, 'players');
+        case 'name':    return getAttr(a, 'game').localeCompare(getAttr(b, 'game'));
+        case 'online':  return (getAttr(b, 'online') === '1') - (getAttr(a, 'online') === '1');
+        default:        return 0;
+      }
+    });
+
+    // Filter show/hide
+    sortedEntries.forEach(entry => {
+      const entryTags = JSON.parse(entry.dataset.tags || '[]');
+      const methodMatch = !selectedMethod || entry.dataset.joinMethod === selectedMethod;
+      const gameMatch = !selectedGame || entry.dataset.game === selectedGame;
+      const tagsMatch = activeTags.length === 0 || activeTags.every(tag => entryTags.includes(tag));
+
+      entry.classList.toggle('hidden', !(methodMatch && gameMatch && tagsMatch));
+    });
+
+    // Reorder DOM
+    sortedEntries.forEach(entry => {
+      if (entry.parentNode === serverList) {
+        serverList.appendChild(entry);
+      }
+    });
+  }
+
+  applyFilters(); // Initial call
 });
 </script>
-
-
 </body>
 </html>
