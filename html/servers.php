@@ -625,33 +625,42 @@ require("php-components/ad-carousel.php");
           <a href="<?= htmlspecialchars($server->gameUrl(), ENT_QUOTES) ?>" class="btn btn-outline-light btn-sm">View Game</a>
 
           <?php if (/*Session::isLoggedIn()*/ true): ?>
-            <?php if ($server->isOnline && $server->joinMethod !== 'manual'): ?>
-              <button class="btn btn-sm bg-ranked-1"
-                      data-bs-toggle="modal"
-                      data-bs-target="#joinServerModal"
-                      onclick="showJoinModal(
-                        '<?= htmlspecialchars($server->ip . ':' . $server->port, ENT_QUOTES) ?>',
-                        '<?= htmlspecialchars($server->name, ENT_QUOTES) ?>',
-                        '<?= htmlspecialchars($server->password ?? '', ENT_QUOTES) ?>',
-                        '<?= htmlspecialchars($server->game->name, ENT_QUOTES) ?>',
-                        '<?= htmlspecialchars($server->bannerMobile?->getFullPath() ?? '/assets/media/banners/default.jpg', ENT_QUOTES) ?>'
-                      )">
-                Join Server
-              </button>
-            <?php else: ?>
-              <button class="btn btn-outline-light btn-sm"
-                      onclick="copyToClipboard('ip-<?= $server->crand ?>')"
-                      data-for="ip-<?= $server->crand ?>">Copy IP</button>
-              <input type="hidden" id="ip-<?= $server->crand ?>" value="<?= htmlspecialchars($server->ip . ':' . $server->port, ENT_QUOTES) ?>">
-            <?php endif; ?>
-          <?php else: ?>
-            <a href="/login.php?redirect=servers.php" class="btn btn-sm bg-ranked-1">Login to Join</a>
-          <?php endif; ?>
-        </div>
 
-      </div><!-- /.server-card-content -->
-    </div><!-- /.server-card -->
-  </div><!-- /.server-card-wrapper -->
+  <?php if (empty($server->isOnline)): ?>
+    <!-- OFFLINE (manual or not): no buttons -->
+
+  <?php elseif (($server->joinMethod ?? '') === 'manual'): ?>
+    <!-- ONLINE + MANUAL: Copy IP -->
+    <button class="btn btn-outline-light btn-sm"
+            onclick="copyToClipboard('ip-<?= $server->crand ?>')"
+            data-for="ip-<?= $server->crand ?>">Copy IP</button>
+    <input type="hidden" id="ip-<?= $server->crand ?>"
+           value="<?= htmlspecialchars($server->ip . ':' . $server->port, ENT_QUOTES) ?>">
+
+  <?php else: ?>
+    <!-- ONLINE + NOT MANUAL: Join -->
+    <button class="btn btn-sm bg-ranked-1"
+            data-bs-toggle="modal"
+            data-bs-target="#joinServerModal"
+            onclick="showJoinModal(
+              '<?= htmlspecialchars($server->ip . ':' . $server->port, ENT_QUOTES) ?>',
+              '<?= htmlspecialchars($server->name, ENT_QUOTES) ?>',
+              '<?= htmlspecialchars($server->password ?? '', ENT_QUOTES) ?>',
+              '<?= htmlspecialchars($server->game->name, ENT_QUOTES) ?>',
+              '<?= htmlspecialchars($server->bannerMobile?->getFullPath() ?? '/assets/media/banners/default.jpg', ENT_QUOTES) ?>'
+            )">
+      Join Server
+    </button>
+  <?php endif; ?>
+
+<?php else: ?>
+  <a href="/login.php?redirect=servers.php" class="btn btn-sm bg-ranked-1">Login to Join</a>
+<?php endif; ?>
+
+</div><!-- /.server-card-footer -->
+</div><!-- /.server-card-content -->
+</div><!-- /.server-card -->
+</div><!-- /.server-card-wrapper -->
 <?php } ?>
 </div><!-- /#kingdom-realms-list -->
 </div> <!-- end left column (.col-12 .col-xl-9) -->
