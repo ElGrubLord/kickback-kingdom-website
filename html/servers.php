@@ -629,14 +629,6 @@ require("php-components/ad-carousel.php");
   <?php if (empty($server->isOnline)): ?>
     <!-- OFFLINE (manual or not): no buttons -->
 
-  <?php elseif (($server->joinMethod ?? '') === 'manual'): ?>
-    <!-- ONLINE + MANUAL: Copy IP -->
-    <button class="btn btn-outline-light btn-sm"
-            onclick="copyToClipboard('ip-<?= $server->crand ?>')"
-            data-for="ip-<?= $server->crand ?>">Copy IP</button>
-    <input type="hidden" id="ip-<?= $server->crand ?>"
-           value="<?= htmlspecialchars($server->ip . ':' . $server->port, ENT_QUOTES) ?>">
-
   <?php else: ?>
     <!-- ONLINE + NOT MANUAL: Join -->
     <button class="btn btn-sm bg-ranked-1"
@@ -647,7 +639,8 @@ require("php-components/ad-carousel.php");
               '<?= htmlspecialchars($server->name, ENT_QUOTES) ?>',
               '<?= htmlspecialchars($server->password ?? '', ENT_QUOTES) ?>',
               '<?= htmlspecialchars($server->game->name, ENT_QUOTES) ?>',
-              '<?= htmlspecialchars($server->bannerMobile?->getFullPath() ?? '/assets/media/banners/default.jpg', ENT_QUOTES) ?>'
+              '<?= htmlspecialchars($server->bannerMobile?->getFullPath() ?? '/assets/media/banners/default.jpg', ENT_QUOTES) ?>',
+              '<?= htmlspecialchars($server->joinMethod) ?>'
             )">
       Join Server
     </button>
@@ -678,7 +671,7 @@ function copyToClipboard(copyText){
     navigator.clipboard.writeText(copyText);
 } 
 
-function showJoinModal(ip, name, password = '', game = '', banner = '') {
+function showJoinModal(ip, name, password = '', game = '', banner = '',joinMethod='manual') {
   const nameEl = document.getElementById('modalServerName');
   const ipEl = document.getElementById('modalServerIp');
   const pwEl = document.getElementById('modalServerPassword');
@@ -686,6 +679,7 @@ function showJoinModal(ip, name, password = '', game = '', banner = '') {
   const revealSection = document.getElementById('ipRevealSection');
   const joinBtn = document.getElementById('confirmJoinBtn');
   const gameEl = document.getElementById('modalGameName');
+    $("#confirmJoinBtn").toggleClass("hidden", joinMethod=="manual");
 
   document.querySelector('.server-card-bg')
     .style.setProperty('--modal-bg-image', `url('${banner || '/assets/media/banners/default.jpg'}')`);
@@ -694,7 +688,7 @@ function showJoinModal(ip, name, password = '', game = '', banner = '') {
   ipEl.textContent = ip;
   pwEl.textContent = password || 'None';
   gameEl.textContent = game;
-  joinBtn.href = 'steam://connect/' + ip;
+  joinBtn.href = 'steam://connect/' + ip + (password ? "/" + password : "");
 
   // Reset toggle
   revealSection.classList.add('d-none');
